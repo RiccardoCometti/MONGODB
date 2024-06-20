@@ -1,0 +1,21 @@
+{"concerto" : {
+    "data" : "",
+    "ora" : "",
+    "luogo del concerto" : "",
+    "coordinate geografiche del concerto" : "",
+
+    "artista" : "",
+    "nome album" : "",
+
+    "numero posti totali" : "",
+    "numero posti disponibili" : "", 
+
+    "costo del biglietto standard" : "",
+    "costo del biglietto premium" : "",
+
+    "ospiti" : ""
+
+
+
+}
+}
