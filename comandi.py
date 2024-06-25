@@ -1,14 +1,20 @@
 #file per richiamare le funzioni e interfaccia
 import main
-from pymongo import MongoClient
 
-uriMongoDb = "mongodb+srv://RiccardoCometti:LoZioPera@clusterriccardocometti.sfhv7sz.mongodb.net/"
+from pymongo.mongo_client import MongoClient
+from pymongo.server_api import ServerApi
 
+uri = "mongodb+srv://RiccardoCometti:LoZioPera@clusterriccardocometti.sfhv7sz.mongodb.net/"
 
-client = MongoClient(uriMongoDb)
+# Create a new client and connect to the server
+client = MongoClient(uri, server_api=ServerApi('1'))
 
-DataBase =  client["Esame_MONGO_DB"]            #accesso al Dataset
-collection = DataBase["Concerti"]               #accesso alla collection
+# Send a ping to confirm a successful connection
+try:
+    client.admin.command("ping")
+    print("Pinged your deployment. You successfully connected to MongoDB!")
+except Exception as e:
+    print(e)
 
 
 
