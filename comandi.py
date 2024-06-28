@@ -2,9 +2,12 @@
 
 ###### IMPORT ######################################################################################
 import main
+import json
 
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
+from bson.objectid import ObjectId
+
 
 ######### CONNESSIONE A MONGODB #####################################################################
 uri = "mongodb+srv://RiccardoCometti:LoZioPera@clusterriccardocometti.sfhv7sz.mongodb.net/"
@@ -20,6 +23,16 @@ except Exception as e:
     print(e)
 #######################################################################################################
 #client.get_database('Esame_MONGO_DB').get_collection('Concerti').find_one
+
+# definizione del database e la collezione
+db = client["Esame_MONGO_DB"]
+concerti_collection = db["Concerti"]
+biglietti_collection = db["Biglietti"]  # Aggiunto per la collezione dei biglietti
+
+def carica_dati():
+    with open('DatasetConcerti.json') as file:
+        dati = json.load(file)
+        concerti_collection.insert_many(dati)
 
 def cerca_concerto():
     
@@ -61,3 +74,45 @@ def cerca_concerto():
 
 
 cerca_concerto()
+
+def acquista_biglietti(concerto):
+    if concerto["disponibilità"] == 0:
+        print("Il concerto è sold-out.")
+        return
+
+    quantita = int(input("Quanti biglietti vuoi acquistare? "))
+    if quantita > concerto["disponibilità"]:
+        print("Quantità non disponibile.")
+        return
+
+    totale = quantita * concerto["prezzo"]
+    print(f"Totale da pagare: {totale}€")
+
+    conferma = input("Confermi l'acquisto? (s/n): ").lower()
+    if conferma != "s":
+        print("Acquisto annullato.")
+        return
+
+    # Generazione dei biglietti con numero di serie univoco
+    biglietti = []
+    for i in range(quantita):
+        numero_serie = str(ObjectId())
+        biglietto = {
+            "numero_serie": numero_serie,
+            "concerto_id": concerto["_id"],
+            "nome_concerto": concerto["nome album"],
+            "data": concerto["data"],
+            "ora": concerto["ora"],
+            "luogo": concerto["luogo del concerto"]
+        }
+        biglietti.append(biglietto)
+        print(f"Biglietto emesso: {numero_serie}")
+
+   # Aggiornamento disponibilità
+    nuova_disponibilità = concerto["disponibilità"] - quantita
+    concerti_collection.update_one(
+        {"_id": concerto["_id"]},
+        {"$set": {"disponibilità": nuova_disponibilità}}
+    )
+    biglietti_collection.insert_many(biglietti)  # Inserimento dei biglietti nella collezione
+    print(f"Disponibilità aggiornata: {nuova_disponibilità}")
