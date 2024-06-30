@@ -30,12 +30,8 @@ concerti_collection = db["Concerti"]
 biglietti_collection = db["Biglietti"]  # Aggiunto per la collezione dei biglietti
 
 
+# Funzione per cercare i concerti direttamente dalla collezione "Concerti"
 def cerca_concerto():
-    
-    client = MongoClient(uri, server_api=ServerApi("1"))
-    db = client["Eseame_MONGO_DB"]  #per connettersi al database
-    lista_concerti = db["Concerti"]  #per connettersi alla collection
-    
     print("""Per cercare il concerto in base a:
     1. Artista
     2. Album
@@ -55,21 +51,29 @@ def cerca_concerto():
         print("Errore, seleziona un numero tra 1, 2 o 3")
         return
 
-
     query = {finalita: metodo_ricerca}
-    risultati = lista_concerti.find(query)
-    count = lista_concerti.count_documents(query)
-    
+    risultati = concerti_collection.find(query)  # Modifica: Cerca direttamente nella collezione "Concerti"
+    count = concerti_collection.count_documents(query)  # Modifica: Conta i documenti nella collezione "Concerti"
+
     risultati_lista = list(risultati)
     if len(risultati_lista) > 0:
         print("Risultati disponibili:")
-        for risultato in risultati_lista:
-            print(f"Data: {risultato['data']}, Ora: {risultato['ora']}, Luogo: {risultato['luogo del concerto']}, Artista: {risultato['artista']}, Album: {risultato['nome album']}, Ospiti: {risultato['ospiti']}")
+        for idx, risultato in enumerate(risultati_lista):
+            print(f"{idx + 1}: Data: {risultato['data']}, Ora: {risultato['ora']}, Luogo: {risultato['luogo del concerto']}, Artista: {risultato['artista']}, Album: {risultato['nome album']}, Ospiti: {risultato['ospiti']}, Disponibilità: {risultato['disponibilità']}, Prezzo: {risultato['prezzo']}€")
+        
+        # Selezione del concerto
+        index = int(input("Seleziona il numero del concerto per visualizzare i dettagli e acquistare i biglietti: ")) - 1
+        if index < 0 or index >= len(risultati_lista):
+            print("Selezione non valida.")
+            return
+
+        concerto_selezionato = risultati_lista[index]
+        print(f"Concerto selezionato: {concerto_selezionato['nome album']}, {concerto_selezionato['data']}, {concerto_selezionato['ora']}, {concerto_selezionato['luogo del concerto']}")
+
+        # Acquisto biglietti
+        acquista_biglietti(concerto_selezionato)  # Modifica: Passa il concerto selezionato alla funzione di acquisto
     else:
         print("Nessun risultato trovato.")
-
-
-cerca_concerto()
 
 def acquista_biglietti(concerto):
     if concerto["disponibilità"] == 0:
@@ -104,11 +108,13 @@ def acquista_biglietti(concerto):
         biglietti.append(biglietto)
         print(f"Biglietto emesso: {numero_serie}")
 
-   # Aggiornamento disponibilità
+    # Aggiornamento disponibilità
     nuova_disponibilità = concerto["disponibilità"] - quantita
-    concerti_collection.update_one(
+    concerti_collection.update_one(  # Modifica: Aggiorna direttamente la collezione "Concerti"
         {"_id": concerto["_id"]},
         {"$set": {"disponibilità": nuova_disponibilità}}
     )
-    biglietti_collection.insert_many(biglietti)  # Inserimento dei biglietti nella collezione
+    biglietti_collection.insert_many(biglietti)  # Modifica: Inserisce i biglietti nella collezione "Biglietti"
     print(f"Disponibilità aggiornata: {nuova_disponibilità}")
+
+cerca_concerto()
