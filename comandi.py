@@ -29,10 +29,6 @@ db = client["Esame_MONGO_DB"]
 concerti_collection = db["Concerti"]
 biglietti_collection = db["Biglietti"]  # Aggiunto per la collezione dei biglietti
 
-def carica_dati():
-    with open('DatasetConcerti.json') as file:
-        dati = json.load(file)
-        concerti_collection.insert_many(dati)
 
 def cerca_concerto():
     
