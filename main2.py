@@ -1,7 +1,5 @@
 #(FORNARA, MI SCUSO PER NON AVERE COLLABORATO MA HO MOLTI IMPEGNI FAMILIARI)
 
-
-import main
 import json
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
@@ -12,15 +10,14 @@ conn_uri = "mongodb+srv://RiccardoCometti:LoZioPera@clusterriccardocometti.sfhv7
 db_client = MongoClient(conn_uri, server_api=ServerApi('1'))
 
 try:
-    db_client.admin.command("effettuare il collegamento")
-    print("collegato")
+    db_client.admin.command("ping")
+    print("Collegato")
 except Exception as err:
-    print(err)
-db_client.get_database('Esame_MONGO_DB').get_collection('Concerti').find_one
+    print(f"Errore di connessione: {err}")
 
 database = db_client["Esame_MONGO_DB"]
 concerti_collezione = database["concerti"]
-biglietti_collezione = database["biglietti"]  
+biglietti_collezione = database["biglietti"]
 
 def cerca_evento():
     print("""Per cercare il concerto in base a:
@@ -30,16 +27,16 @@ def cerca_evento():
     opzione = input()
 
     if opzione == "1":
-        criterio = "album"
-        parametro_ricerca = input("album: ")
+        criterio = "nome album"
+        parametro_ricerca = input("Album: ")
     elif opzione == "2":
         criterio = "artista"
-        parametro_ricerca = input("artista: ")
+        parametro_ricerca = input("Artista: ")
     elif opzione == "3":
         criterio = "ospiti"
-        parametro_ricerca = input("ospite: ")
+        parametro_ricerca = input("Ospite: ")
     else:
-        print("inserire un numero tra (1, 2, 3) per proseguire")
+        print("Inserire un numero tra (1, 2, 3) per proseguire")
         return
 
     ricerca = {criterio: parametro_ricerca}
@@ -48,38 +45,42 @@ def cerca_evento():
 
     risultati_lista = list(risultati)
     if len(risultati_lista) > 0:
-        print("disponibilità:")
+        print("Disponibilità:")
         for idx, risultato in enumerate(risultati_lista):
-            print(f"{idx + 1}: Data: {risultato['data']}, Ora: {risultato['ora']}, città/stadio/piazza: {risultato['luogo concerto']}, nome artista: {risultato['artista']}, album: {risultato['nome album']}, ospiti: {risultato['ospiti']}, disponibilità: {risultato['disponibilità']}, prezzo: {risultato['prezzo']}€")
-        
+            print(f"{idx + 1}: Data: {risultato['data']}, Ora: {risultato['ora']}, Città/Stadio/Piazza: {risultato['luogo del concerto']}, Nome Artista: {risultato['artista']}, Album: {risultato['nome album']}, Ospiti: {risultato['ospiti']}, Disponibilità: {risultato['disponibilità']}, Prezzo: {risultato['prezzo']}€")
         
         selezione_idx = int(input("Seleziona il numero del concerto e acquista i biglietti: ")) - 1
         if selezione_idx < 0 or selezione_idx >= len(risultati_lista):
-            print("opzione non valida.")
+            print("Opzione non valida.")
             return
 
         evento_selezionato = risultati_lista[selezione_idx]
-        print(f"Concerto: {evento_selezionato['album']}, {evento_selezionato['data']}, {evento_selezionato['ora']}, {evento_selezionato['posizione concerto']}")
+        print(f"Concerto: {evento_selezionato['nome album']}, {evento_selezionato['data']}, {evento_selezionato['ora']}, {evento_selezionato['luogo del concerto']}")
 
-        
         acquista_biglietti(evento_selezionato)
     else:
-        print("concerto non trovato.")
+        print("Concerto non trovato.")
 
 def acquista_biglietti(evento):
     if evento["disponibilità"] == 0:
-        print("sold-out.")
+        print("Sold-out.")
+        return
+
+    quantita_biglietti = int(input("Numero biglietti: "))
+    if quantita_biglietti > evento["disponibilità"]:
+        print("Non disponibile.")
         return
 
     conferma_acquisto = input("Confermare? (y/n): ").lower()
     if conferma_acquisto != "y":
-        print("nullo.")
+        print("Nullo.")
         return
 
     lista_biglietti = []
     for i in range(quantita_biglietti):
         numero_seriale = str(ObjectId())
-        biglietto = {"id-evento": evento["_id"],
+        biglietto = {
+            "id-evento": evento["_id"],
             "evento": evento["nome album"],
             "numero-serie": numero_seriale,
             "città/stadio/piazza": evento["luogo del concerto"],
@@ -87,14 +88,10 @@ def acquista_biglietti(evento):
             "ora": evento["ora"],
         }
         lista_biglietti.append(biglietto)
-        print(f"biglietto: {numero_seriale}")
-    quantita_biglietti = int(input("numero biglietti"))
-    if quantita_biglietti > evento["disponibilità"]:
-        print("non disponibile.")
-        return
+        print(f"Biglietto: {numero_seriale}")
 
     totale_pagare = quantita_biglietti * evento["prezzo"]
-    print(f"conto: {totale_pagare}€")
+    print(f"Conto: {totale_pagare}€")
 
     nuova_disponibilita = evento["disponibilità"] - quantita_biglietti
     concerti_collezione.update_one(
@@ -102,5 +99,6 @@ def acquista_biglietti(evento):
         {"$set": {"disponibilità": nuova_disponibilita}}
     )
     biglietti_collezione.insert_many(lista_biglietti)
-    print(f"nuove disponibilità: {nuova_disponibilita}")
+    print(f"Nuove disponibilità: {nuova_disponibilita}")
+
 cerca_evento()
