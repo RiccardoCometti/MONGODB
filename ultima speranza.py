@@ -2,6 +2,12 @@ import pymongo
 from pymongo import MongoClient
 from bson.objectid import ObjectId
 ###########################################################
+# terminale ####################################
+import pyfiglet as p
+from colorama import init, Fore, Back, Style 
+from termcolor import colored
+init(autoreset=True)
+#################################################
 
 client = MongoClient("mongodb://localhost:27017")
 db = client.pymongo
@@ -53,16 +59,16 @@ def cerca_concerti():
                 3 nome dell'ospite
                 :""")
     if scelta == "1":
-        metodo = input("inserisci il nome dell'artista: ")
+        metodo = input("inserisci il nome dell'" + (Fore.GREEN + Style.BRIGHT + "artista: " + Fore.MAGENTA))
         result = concertiCollection.find({"artista": metodo})      
     elif scelta == "2":
-        metodo = input("inserisci il nome dell'album: ")
+        metodo = input("inserisci il nome dell'"+ (Fore.GREEN + Style.BRIGHT + "album: " + Fore.MAGENTA))
         result = concertiCollection.find({"nome album": metodo})
     elif scelta == "3":
-        metodo = input("inserisci il nome dell'ospite: ")
+        metodo = input("inserisci il nome dell'"+ (Fore.GREEN + Style.BRIGHT + "artista: " + Fore.MAGENTA))
         result = concertiCollection.find({"ospiti": metodo})
     else:
-        print("non esiste un concerto con il parametro specificato")
+        print((Fore.RED + Style.BRIGHT + "non esiste un concerto con il parametro specificato" + Style.RESET_ALL))
     for concerti in result:
         print(concerti)
 
@@ -81,7 +87,7 @@ def cerca_concerti():
             
             
             prezzo_unitario = concertotrovato.get("costo del biglietto standard", 0)
-            quantita = int(input("Quanti biglietti standard vuoi comprare? "))
+            quantita = int(input("Quanti biglietti " + (Style.BRIGHT + Fore.CYAN + "standard ") + (Style.RESET_ALL + "vuoi comprare? ") + (Fore.GREEN + Style.BRIGHT)))
             prezzo_totale = prezzo_unitario * quantita
             print(f"Hai acquistato {quantita} biglietti standard per {concertotrovato['artista']} a {prezzo_totale} EUR complessivi.")
         
@@ -90,58 +96,19 @@ def cerca_concerti():
             
 
             prezzo_unitario = concertotrovato.get("costo del biglietto premium", 0)
-            quantita = int(input("Quanti biglietti premium vuoi comprare? "))
+            quantita = int(input("Quanti biglietti "+ (Style.BRIGHT + Fore.YELLOW + "premium ") + (Style.RESET_ALL + "vuoi comprare? ") + (Fore.GREEN + Style.BRIGHT)))
             prezzo_totale = prezzo_unitario * quantita
             print(f"Hai acquistato {quantita} biglietti premium per {concertotrovato['artista']} a {prezzo_totale} EUR complessivi.")
         
 
 
         else:
-            print("error")
+            print((Fore.RED + Style.BRIGHT + "error"))
     
     
     
     
     if domandaAcquisto == "n":
-        print("grazie per non aver acquistato il biglietto")
+        print(Fore.RED + Style.BRIGHT + "grazie per non aver acquistato il biglietto")
 
 cerca_concerti()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#print(result)
-
-# def compra_biglietti():
-#     domandaAcquisto = input("vuoi comprare il biglietto? y/n: ")
-#     if domandaAcquisto.upper == "Y":
-#         prezzoBiglietto = input("vuoi comprare il biglietto standard o premium? s/p" )
-#         if prezzoBiglietto.upper == "S":
-#             print("prezzo biglietto standard: ")
-#             quantita = input("quanti biglietti standard vuoi comprare?: ")
-
-
-#         elif prezzoBiglietto.upper == "P":
-#             print("prezzo del biglietto premium: ")
-#             quantita = input("quanti biglietti premium vuoi acquistare?: ")
-
-
-
-#         else:
-#             print("error")
-    
-    
-    
-    
-#     if domandaAcquisto.upper == "N":
-#         print("grazie per non aver acquistato il biglietto")
