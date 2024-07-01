@@ -9,23 +9,15 @@ bson
 
 Installazione
 Clona il repository o scarica i file.
-Installa le dipendenze richieste eseguendo:
+Installato le dipendenze richieste eseguendo:
 bash
-Copia codice
 pip install pymongo bson
 
 
-Configurazione
-Assicurati di avere un cluster MongoDB configurato. Sostituisci l'URI di connessione con il tuo URI MongoDB nel file comandi.py:
-
 python
-Copia codice
-uri = "mongodb+srv://<username>:<password>@<cluster>.mongodb.net/"
-Utilizzo
-Esegui il file comandi.py:
+client = MongoClient("mongodb://localhost:27017")
 
 bash
-Copia codice
 python comandi.py
 Segui le istruzioni nel terminale per cercare concerti e acquistare biglietti.
 
@@ -36,26 +28,20 @@ Puoi cercare concerti in base a tre criteri:
 Artista
 Album
 Ospite
-Acquistare Biglietti
-Una volta selezionato un concerto, puoi acquistare i biglietti. Il sistema verifica la disponibilità, calcola il totale e aggiorna la disponibilità dei biglietti nel database.
 
-Esempio di Output
-markdown
-Copia codice
-Per cercare il concerto in base a:
-1. Artista
-2. Album
-3. Ospite
-Inserisci il numero corrispondente alla tua scelta e segui le istruzioni successive.
-
-Struttura del Progetto
-comandi.py: Il file principale che contiene tutte le funzioni per cercare concerti e acquistare biglietti.
-Concerti: Collezione MongoDB che contiene le informazioni sui concerti.
-Biglietti: Collezione MongoDB che contiene i biglietti acquistati.
-Note
-Assicurati di avere le collezioni Concerti e Biglietti nel tuo database Esame_MONGO_DB.
-La connessione a MongoDB utilizza l'API Server v1.
+Acquisto Biglietti
+Una volta selezionato un concerto, puoi acquistare i biglietti. Il sistema chiede se preferisci acquistare il biglietto premium o standard, calcola il totale e aggiorna il prezzo finale.
 
 
+il file
+dopo gli import e aver stabilito la connessione con mongo db
+abbiamo inserito i concerti da python come lista e inseriti in mongo tramite il comando
+-result = concertiCollection.insert_many(concerti)-
+abbiao creato una funzione unica che permette prima la ricerca tramite i parametri sopracitati il concerto, 
+e poi conferisce all'utente di comprare o no i biglietti.
+se l'utente desidera acquistare i biglietti il programma chiede se il biglietto desiderato è standard o premium
+infine chiede quanti biglietti si desideri comprare e fa il prodotto tra la quantità e il prezzo di un singolo concerto.
+
+####################################################################################################################
 Contatti
 Per qualsiasi domanda, contatta Riccardo Cometti, Mario Campana, Alessandro Belvedere, Alessandro Fornara.
