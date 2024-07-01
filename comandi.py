@@ -25,11 +25,25 @@ except Exception as e:
 # Definizione del database e la collezione
 db = client["Eseame_MONGO_DB"]
 concerti_collection = db["Concerti"]
-biglietti_collection = db["Biglietti"]
+biglietti_collection = db["Biglietti"]  # Aggiunto per la collezione dei biglietti
 
+def carica_dati():
+    with open('DatasetConcerti.json') as file:
+        dati = json.load(file)
+        concerti_collection.insert_many(dati)
+
+# Funzione per cercare i concerti direttamente dalla collezione "Concerti"
 def cerca_concerto():
-    try:
-        scelta = input("Per cercare il concerto in base a:\n1. Artista\n2. Album\n3. Ospite\nInserisci la tua scelta: ")
+    
+    client = MongoClient(uri, server_api=ServerApi("1"))
+    db = client["Eseame_MONGO_DB"]  #per connettersi al database
+    lista_concerti = db["Concerti"]  #per connettersi alla collection
+    
+    print("""Per cercare il concerto in base a:
+    1. Artista
+    2. Album
+    3. Ospite""")
+    scelta = input()
 
         if scelta == "1":
             finalita = "artista"
@@ -44,32 +58,26 @@ def cerca_concerto():
             print("Errore, seleziona un numero tra 1, 2 o 3")
             return
 
-        query = {finalita: metodo_ricerca}
-        risultati = concerti_collection.find(query)
-        count = concerti_collection.count_documents(query)
 
-        risultati_lista = list(risultati)
-        if len(risultati_lista) > 0:
-            print("Risultati disponibili:")
-            for risultato in risultati_lista:
-                print(f"Data: {risultato['data']}, Ora: {risultato['ora']}, Luogo: {risultato['luogo del concerto']}, Artista: {risultato['artista']}, Album: {risultato['nome album']}, Ospiti: {risultato['ospiti']}")
-        else:
-            print("Nessun risultato trovato.")
-    except Exception as e:
-        print(f"Errore durante la ricerca del concerto: {e}")
+    query = {finalita: metodo_ricerca}
+    risultati = lista_concerti.find(query)
+    count = lista_concerti.count_documents(query)
+    
+    risultati_lista = list(risultati)
+    if len(risultati_lista) > 0:
+        print("Risultati disponibili:")
+        for risultato in risultati_lista:
+            print(f"Data: {risultato['data']}, Ora: {risultato['ora']}, Luogo: {risultato['luogo del concerto']}, Artista: {risultato['artista']}, Album: {risultato['nome album']}, Ospiti: {risultato['ospiti']}")
+    else:
+        print("Nessun risultato trovato.")
 
-def acquista_biglietti():
-    try:
-        concerto_id = input("Inserisci l'ID del concerto che vuoi acquistare: ")
-        concerto = concerti_collection.find_one({"_id": ObjectId(concerto_id)})
 
-        if concerto is None:
-            print("Concerto non trovato.")
-            return
+cerca_concerto()
 
-        if concerto["disponibilità"] == 0:
-            print("Il concerto è sold-out.")
-            return
+def acquista_biglietti(concerto):
+    if concerto["disponibilità"] == 0:
+        print("Il concerto è sold-out.")
+        return
 
         quantita = int(input("Quanti biglietti vuoi acquistare? "))
         if quantita > concerto["disponibilità"]:
@@ -98,16 +106,11 @@ def acquista_biglietti():
             biglietti.append(biglietto)
             print(f"Biglietto emesso: {numero_serie}")
 
-        nuova_disponibilità = concerto["disponibilità"] - quantita
-        concerti_collection.update_one(
-            {"_id": concerto["_id"]},
-            {"$set": {"disponibilità": nuova_disponibilità}}
-        )
-        biglietti_collection.insert_many(biglietti)
-        print(f"Disponibilità aggiornata: {nuova_disponibilità}")
-    except Exception as e:
-        print(f"Errore durante l'acquisto dei biglietti: {e}")
-
-# Esegui il programma
-cerca_concerto()
-acquista_biglietti()
+   # Aggiornamento disponibilità
+    nuova_disponibilità = concerto["disponibilità"] - quantita
+    concerti_collection.update_one(
+        {"_id": concerto["_id"]},
+        {"$set": {"disponibilità": nuova_disponibilità}}
+    )
+    biglietti_collection.insert_many(biglietti)  # Inserimento dei biglietti nella collezione
+    print(f"Disponibilità aggiornata: {nuova_disponibilità}")
