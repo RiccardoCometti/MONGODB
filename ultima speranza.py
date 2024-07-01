@@ -69,12 +69,15 @@ def cerca_concerti():
         result = concertiCollection.find({"ospiti": metodo})
     else:
         print((Fore.RED + Style.BRIGHT + "non esiste un concerto con il parametro specificato" + Style.RESET_ALL))
+        return
     for concerti in result:
         print("\n")
         for informazioniConcerto in concerti:
             print(Fore.LIGHTMAGENTA_EX + Style.BRIGHT + (str(informazioniConcerto) + Style.RESET_ALL) + ": " + (Fore.CYAN + str(concerti[informazioniConcerto])))
-
-    concertotrovato = result
+        else:
+            break
+        
+    #concertotrovato = result
 
     domandaAcquisto = input("vuoi comprare il biglietto? y/n: ").strip().lower()
     if domandaAcquisto == "y":
