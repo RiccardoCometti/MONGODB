@@ -70,7 +70,9 @@ def cerca_concerti():
     else:
         print((Fore.RED + Style.BRIGHT + "non esiste un concerto con il parametro specificato" + Style.RESET_ALL))
     for concerti in result:
-        print(concerti)
+        print("\n")
+        for informazioniConcerto in concerti:
+            print(Fore.LIGHTMAGENTA_EX + Style.BRIGHT + (str(informazioniConcerto) + Style.RESET_ALL) + ": " + (Fore.CYAN + str(concerti[informazioniConcerto])))
 
     concertotrovato = result
 
