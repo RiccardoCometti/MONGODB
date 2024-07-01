@@ -84,17 +84,21 @@ def cerca_concerti():
 
         if "concerti" in locals():
             concertotrovato = concerti
-
-
+        ##########
+        prezzo_standard = concertotrovato.get("costo del biglietto standard", "Prezzo non disponibile")
+        prezzo_premium = concertotrovato.get("costo del biglietto premium", "Prezzo non disponibile")
+        print(Fore.RED + f"Prezzo del biglietto standard: {prezzo_standard} EUR")
+        print(Fore.BLUE + f"Prezzo del biglietto premium: {prezzo_premium} EUR" + Style.RESET_ALL)
+        ##########
         prezzoBiglietto = input("vuoi comprare il biglietto standard o premium? s/p: " ).strip().lower()
-        print(concertotrovato)
+        
         if prezzoBiglietto == "s":
             
             
             prezzo_unitario = concertotrovato.get("costo del biglietto standard", 0)
             quantita = int(input("Quanti biglietti " + (Style.BRIGHT + Fore.CYAN + "standard ") + (Style.RESET_ALL + "vuoi comprare? ") + (Fore.GREEN + Style.BRIGHT)))
             prezzo_totale = prezzo_unitario * quantita
-            print(f"Hai acquistato {quantita} biglietti standard per {concertotrovato['artista']} a {prezzo_totale} EUR complessivi.")
+            print(f"Hai acquistato {quantita} biglietti standard per {concertotrovato["artista"]} a {prezzo_totale} EUR complessivi.")
         
 
         elif prezzoBiglietto == "p":
@@ -103,7 +107,7 @@ def cerca_concerti():
             prezzo_unitario = concertotrovato.get("costo del biglietto premium", 0)
             quantita = int(input("Quanti biglietti "+ (Style.BRIGHT + Fore.YELLOW + "premium ") + (Style.RESET_ALL + "vuoi comprare? ") + (Fore.GREEN + Style.BRIGHT)))
             prezzo_totale = prezzo_unitario * quantita
-            print(f"Hai acquistato {quantita} biglietti premium per {concertotrovato['artista']} a {prezzo_totale} EUR complessivi.")
+            print(f"Hai acquistato {quantita} biglietti premium per {concertotrovato["artista"]} a {prezzo_totale} EUR complessivi.")
         
 
 
